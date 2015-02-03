@@ -17,5 +17,5 @@
   - Search files by name and keyword
     + Discription: In order to help user to find their desired file as soon as possible, we added searching feature in our website. As a user, you could put keyword or the whole name of the file into the search field and it would offer you with all the files containing the given keywords so that you could view, delete or share them conveniently.
 
-  -Robustness Design
+  - Robustness Design
     + In our file system website, we designed it to check if the user name or the file name typed by user is valid or legal. Some special tokens such as "." or  ".." would be not used as the user name or file name.
