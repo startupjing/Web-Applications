@@ -1,0 +1,16 @@
+body{
+      background-color:#65bdf0;
+}
+#content{
+    position: absolute;
+    top: 30%;
+    left: 30%;
+    margin-right: 50%;
+}
+
+#filecontent{
+    position: absolute;
+    top: 10%;
+    left: 30%;
+    margin-right: 30%;
+}
