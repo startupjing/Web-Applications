@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+     <title>Home Page</title>
+     <link href="slider.css" rel="stylesheet" type="css/text">
+     <link href="assets/css/bootstrap.min.css" rel="stylesheet" media="screen">
+     <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/app.js"></script>
+    
+   
+
+    <!-- navigation bar -->
+
+    <div class="navbar navbar-inverse">
+    <div class="navbar-inner">
+       <a class="brand" href="index.html">NewsBoard</a>
+       <ul class="nav nav-pills">
+          <li role="presentation" class="active"><a href="story.php?cat=education">education</a></li>
+          <li role="presentation"><a href="story.php?cat=entertainment">entertainment</a></li>
+          <li role="presentation"><a href="story.php?cat=life">life</a></li>
+          <li role="presentation"><a href="story.php?cat=technology">technology</a></li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">More<b class="caret"></b></a>  
+             <ul class="dropdown-menu">
+                <li><a href="story.php?cat=politics">politics</a></li>
+                <li><a href="story.php?cat=society">society</a></li>
+                <li><a href="story.php?cat=sports">sports</a></li>
+                <li><a href="story.php?cat=travel">travel</a></li>
+             </ul>
+        </li>
+       </ul>
+       
+       <form action="search.php" class="navbar-search offset1" method="post">
+             <input type="text" name ="target" class="search-query" placeholder="Search">
+              <select name="searchRange">
+                 <option value="user">User</option>
+                 <option value="story">Story</option>
+                 <option value="comment">Comment</option>
+              </select>
+              <button type="submit" class="btn btn-default">Search</button>
+       </form>
+       
+       <div class="btn-group pull-right">
+          <a href="signup.php" class="btn btn-primary">Sign Up</a>
+          <a href="login.php" class="btn btn-success">Login</a>
+       </div>
+      
+      </div>
+    </div>
+
+    
+   <!--  sliders -->
+   
+    <div class="slider">
+
+      <div class="slide active-slide">
+        <div class="container">
+          <div class="row">
+            <div class="slide-copy col-xs-5">
+              <h1>Welcome</h1>
+              <p></p>
+              <p>This is Newsboard</p>
+              <p>Website built using PHP, MySQL, HTML, CSS, etc</p>
+              <p>Also, Bootstrap is used to enhance the front-end display</p>
+            </div>
+          </div>
+        </div>      
+      </div>
+
+      <div class="slide">
+        <div class="container">
+          <div class="row">
+            <div class="slide-copy col-xs-5">
+              <h1>Features</h1>
+              <h2>More will be added in the future</h2>
+              <p></p>
+              <ul>
+                <li>User registration and login, update personal profile</li>
+                <li>Post, edit, delete news and stories</li>
+                <li>Post, edit, delete comments associated with story</li>
+                <li>Add favorite comments or stories to your personal collections, follow your favorite writers</li>
+                <li>Search function on user, story, and comment</li>
+                <li>MySQL database support and Bootstrap framework</li>
+                <li>Web security and validation</li>
+              </ul>
+            </div>        
+          </div>
+        </div>      
+      </div> 
+
+
+      <div class="slide">
+        <div class="container">
+          <div class="row">
+            <div class="slide-copy col-xs-5">
+              <h1>Future</h1>
+              <p></p>
+             <p>We will make it better in the future. </p>
+             <p>Please give us suggestions<p>
+            </div>
+          </div>
+        </div>      
+      </div> 
+    
+    
+     <div class="slide slide-feature">
+        <div class="container">
+          <div class="row">
+            <div class="col-xs-12">
+              <a href="signup.php" class="btn btn-primary">Sign up Now</a>
+            </div>
+          </div>
+        </div>      
+      </div> 
+    </div>
+
+    <div class="slider-nav">
+      <a href="#" class="arrow-prev"><img src="http://s3.amazonaws.com/codecademy-content/courses/ltp2/img/flipboard/arrow-prev.png" alt="Oops, no image found"></a>
+      <ul class="slider-dots">
+        <li class="dot active-dot">&bull;</li>
+        <li class="dot">&bull;</li>
+        <li class="dot">&bull;</li>
+        <li class="dot">&bull;</li>
+      </ul>
+      <a href="#" class="arrow-next"><img src="http://s3.amazonaws.com/codecademy-content/courses/ltp2/img/flipboard/arrow-next.png" alt="Oops, no image found"></a>
+    </div> 
+
+   
+  </body>
+</html>

@@ -1,0 +1,9 @@
+body{
+    background-color:#65bdf0;
+}
+#content{
+    position: center;
+    top: 15%;
+    margin-left: 10%;
+    /*margin-right: 50%;*/
+}
