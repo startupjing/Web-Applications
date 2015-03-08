@@ -22,15 +22,15 @@
   - Home Page
     ![test1](images/mainpage.png)
   - Sign-up Page
-    ![test2](/images/signup.png)
+    ![test2](images/signup.png)
   - Personal Page
-    ![test3](/images/person.png)
+    ![test3](images/person.png)
   - Posts
-    ![test4](/images/story.png)
+    ![test4](images/story.png)
   - Favorite Collection
-    ![test5](/images/favorite.png)
+    ![test5](images/favorite.png)
   - Category
-    ![test6](/images/category.png)
+    ![test6](images/category.png)
   
 + Skills
   - PHP
