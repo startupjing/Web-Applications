@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd.">
+
+<hibernate-mapping package="com.jing.domain">
+   <class name="User" table="usertest">
+   
+     <id name="id" column="ID">      
+            <generator class="sequence">      
+                <param name="sequence">usertest_ID_SEQ</param>      
+            </generator>      
+        </id>  
+       
+      <property name="username">
+            <column name="username" not-null="true">
+            </column>
+       </property>
+       
+      <property name="password">
+            <column name="password" not-null="true">
+            </column>
+       </property>
+       
+       <property name="name">
+            <column name="name" not-null="true">
+            </column>
+       </property>
+       
+        <property name="phone">
+            <column name="phone" not-null="true">
+            </column>
+      </property>
+      
+       <property name="city">
+            <column name="city" not-null="true">
+            </column>
+      </property>
+      
+      <property name="deptNum">
+            <column name="deptNum">
+            </column>
+      </property>
+      
+      <property name="isAdmin">
+         <column name="isAdmin">
+         </column>
+      </property>
+      
+   </class>
+</hibernate-mapping>

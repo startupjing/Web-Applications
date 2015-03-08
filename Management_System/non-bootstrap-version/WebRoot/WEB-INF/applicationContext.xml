@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+	http://www.springframework.org/schema/tx 
+  	http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+    
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+       <property name="driverClassName"><value>oracle.jdbc.driver.OracleDriver</value></property>
+       <property name="url"><value>jdbc:oracle:thin:@xxxx:orcl</value></property>
+       <property name="username"><value>xxx</value></property>
+       <property name="password"><value>xxx</value></property>
+    </bean>
+    
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+       <property name="dataSource"><ref bean="dataSource"/></property>
+       <property name="mappingResources">
+            <list>
+                <value>com/jing/domain/User.hbm.xml</value>
+                <value>com/jing/domain/Dept.hbm.xml</value>
+                <value>com/jing/domain/UploadFile.hbm.xml</value>
+            </list>
+        </property>
+       
+       
+       
+       <property name="hibernateProperties">
+          <props>
+             <prop key="hibernate.dialect">org.hibernate.dialect.OracleDialect</prop>
+             <prop key="hibernate.show_sql">true</prop>
+             <prop key="hibernate.format_sql">true</prop>
+          </props>
+       </property>
+    </bean>
+    
+    <!-- <bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
+        <property name="sessionFactory" ref="sessionFactory"></property>
+        <property name="dataSource" ref="dataSource"/>
+    </bean> -->
+    
+    <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+      <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+    
+    
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix"><value>/</value></property>
+        <property name="suffix"><value>.jsp</value></property>
+    </bean>
+    
+ 
+    <bean id="UserDao" class="com.jing.dao.UserDao">
+       <property name="sessionFactory"><ref bean="sessionFactory"/></property>
+       <!-- <property name="hibernateTemplate" ref="hibernateTemplate"/> -->
+    </bean>
+    
+    <bean id="DeptDao" class="com.jing.dao.DeptDao">
+       <property name="sessionFactory"><ref bean="sessionFactory"/></property>
+       <!-- <property name="hibernateTemplate" ref="hibernateTemplate"/> -->
+    </bean>
+    
+    <bean id="FileDao" class="com.jing.dao.FileDao">
+       <property name="sessionFactory"><ref bean="sessionFactory"/></property>
+       <!-- <property name="hibernateTemplate" ref="hibernateTemplate"/> -->
+    </bean>
+    
+    
+    <bean id="LoginService" class="com.jing.service.LoginService">
+        <property name="userDao" ref="UserDao"></property>
+        <property name="deptDao" ref="DeptDao"></property>
+    </bean>
+    
+    
+    
+    <bean name="/UserController.html" class="com.jing.controller.UserController">
+       <property name="userDao" ref="UserDao"/>
+       <property name="deptDao" ref="DeptDao"/>
+       <property name="methodNameResolver"><ref bean="paraMethodResolver"/></property>
+    </bean>
+    
+    <bean name="/DeptController.html" class="com.jing.controller.DeptController">
+       <property name="deptDao" ref="DeptDao"/>
+        <property name="userDao" ref="UserDao"/>
+       <property name="methodNameResolver"><ref bean="paraMethodResolver"/></property>
+    </bean>
+    
+    <bean name="/FileController.html" class="com.jing.controller.FileController">
+       <property name="userDao" ref="UserDao"></property>
+       <property name="fileDao" ref="FileDao"/>
+       <property name="methodNameResolver"><ref bean="paraMethodResolver"/></property>
+    </bean>
+    
+    <bean name="/LoginController.html" class="com.jing.controller.LoginController">
+       <property name="loginService" ref="LoginService"/>
+       <property name="methodNameResolver"><ref bean="paraMethodResolver"/></property>
+    </bean>
+    
+    <bean id="paraMethodResolver" class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver">
+    <property name="paramName" value="method"/>
+    </bean>
+ 
+    
+</beans>

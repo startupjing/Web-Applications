@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd.">
+
+<hibernate-mapping package="com.jing.domain">
+   <class name="Dept" table="depttest">
+   
+     <id name="id" column="ID">      
+            <generator class="sequence">      
+                <param name="sequence">depttest_ID_SEQ</param>      
+            </generator>      
+        </id>  
+       
+      <property name="deptNum">
+            <column name="deptNum" not-null="true">
+            </column>
+       </property>
+       
+      <property name="deptName">
+            <column name="deptName" not-null="true">
+            </column>
+       </property>
+       
+        <property name="deptInfo">
+            <column name="deptInfo"  not-null="true">
+            </column>
+      </property>
+      
+      <property name="empNum">
+            <column name="empNum">
+            </column>
+      </property>
+
+   </class>
+</hibernate-mapping>
