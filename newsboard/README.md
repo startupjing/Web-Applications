@@ -19,12 +19,18 @@
     + FIEO philosophy 
 
 + Screenshots
-  - [Home Page](/images/mainpage)
-  - [Sign-up Page](/images/signup)
-  - [Personal Page](/images/person)
-  - [Posts](/images/story)
-  - [Favorite Collections](/images/favorite)
-  - [Category](/images/category)
+  - Home Page
+    ![test1](images/mainpage.png)
+  - Sign-up Page
+    ![test2](/images/signup.png)
+  - Personal Page
+    ![test3](/images/person.png)
+  - Posts
+    ![test4](/images/story.png)
+  - Favorite Collection
+    ![test5](/images/favorite.png)
+  - Category
+    ![test6](/images/category.png)
   
 + Skills
   - PHP
