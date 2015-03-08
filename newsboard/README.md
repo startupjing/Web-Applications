@@ -18,6 +18,14 @@
     + CSRF tokens are passed
     + FIEO philosophy 
 
++ Screenshots
+  - [Home Page](/images/mainpage)
+  - [Sign-up Page](/images/signup)
+  - [Personal Page](/images/person)
+  - [Posts](/images/story)
+  - [Favorite Collections](/images/favorite)
+  - [Category](/images/category)
+  
 + Skills
   - PHP
   - MySQL
