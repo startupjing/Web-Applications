@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Calendar Page</title>
+	<meta charset="UTF-8">
+	<link href="assets/css/bootstrap.css" rel="stylesheet" media="screen">
+	<link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+	<link href="calendar.css" rel="stylesheet">
+
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/start/jquery-ui.css"
+   type="text/css" rel="Stylesheet" /> 
+   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js"></script>
+
+</head>
+
+
+<body>
+     
+
+     <div class="container">
+         
+         <!-- headers -->
+	     <div class="header">
+	     	<div class="btn-group pull-right" role="group" aria-label="..." id="nav-btns"></div>
+	     </div>
+
+	    <div class="jumbotron">
+		    <h3 id="nav_header"></h3>
+			<h5 id="month_info"></h5>
+		</div>
+
+	    
+	    <!-- navigation  -->
+
+		<div class="page-header">
+			<div class="pull-right form-inline">
+				<div class="btn-group">
+					<button class="btn btn-primary" id="prev_month_btn">Previous Month</button>
+					<button class="btn btn-success" id="today_btn">Today</button>
+					<button class="btn btn-primary" id="next_month_btn">Next Month</button>
+				</div>
+
+				<div class="btn-group">
+					<button class="btn btn-info" id="view_year">Year</button>
+					<button class="btn btn-info active" id="view_month">Month</button>
+					<button class="btn btn-info" id="view_week">Week</button>
+				</div>
+			</div>
+
+			<h3></h3>
+		</div>
+
+        
+        <!-- calendar -->
+
+		<div class="row">
+			<div class="span9">
+				<div id="calendar">
+					<table class="table table-bordered" id="calendar_table"></table>
+				</div>
+			</div>
+			<div class="span3" id="user_sidebar"></div>
+			<div class="span3" id="today_event"></div>
+	    </div>
+
+
+    
+	</div>
+
+    
+
+    <!-- dialog to create event -->
+
+    <div id="mydialog" title="Create an event">
+		<label for="event_title"></label>
+		<input type="text" name="event_title" id="event_title" placeholder="Title">
+		<input type="text" name="event_date" id="event_date" placeholder="Date">
+		<script type="text/javascript">
+		    $("#event_date").datepicker();
+		    $("#event_date").datepicker("option","dateFormat", "m/d/yy");
+		</script>
+
+		<select name="event_tag" id="event_tag">
+			<option value="meeting">Meeting</option>
+			<option value="entertainment">Entertainment</option>
+			<option value="sports">Sports</option>
+			<option value="business">Business</option>
+			<option value="other">Other</option>
+		</select>
+
+		<label for="event_note"></label>
+		<textarea class="form-control" rows="5" placeholder="Note(include your time here)" name="event_note" id="event_note"></textarea>
+        
+        <p>Share this event to:</p>
+		<select id="event_to_user" multiple="multiple"></select>
+	    
+	    <button type="button" class="btn btn-info" id="create_btn">Submit</button>
+	</div>
+
+    
+    <!-- dialog for signup -->
+	<div id="signup_dialog" title="Sign up here">
+		<label for="username">Username</label>
+	  	<input type="text" name="username" id="username" placeholder="Username">
+
+	  	<label for="pwd">Password</label>
+	  	<input type="password" name="pwd" id="pwd" placeholder="Password">
+
+	  	<label for="name">Name</label>
+	  	<input type="text" name="name" id="name" placeholder="Name">
+
+	  	<label for="email">Email</label>
+	  	<input type="text" name="email" id="email" placeholder="Email address">
+
+	  	<button type="button" class="btn btn-info" id="register_btn">Sign-up</button>
+	</div>
+
+    
+    <!-- dialog for login -->
+	<div id="login_dialog" title="Login here">
+		<label for="inputUsername" class="sr-only">Username</label>
+        <input type="text" name="inputUsername" id="inputUsername" placeholder="Username" required autofocus>
+
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input type="password" name="inputPassword" id="inputPassword" placeholder="Password" required>
+
+        <button type="button" class="btn btn-info" id="signin_btn">Login</button>
+    </div>
+    
+
+    <!-- event detail -->
+    <div id="event_dialog" title="Event">
+    	<div id="event_entertainment"></div>
+    	<div id="event_meeting"></div>
+    	<div id="event_sports"></div>
+    	<div id="event_business"></div>
+    	<div id="event_other"></div>
+    </div>
+ 
+    <!-- dialog to edit event -->
+    <div id="edit_dialog" title="Edit event">
+		<label for="edit_event_title"></label>
+		<input type="text" name="edit_event_title" id="edit_event_title" placeholder="Title">
+	
+		<label for="edit_event_note"></label>
+		<textarea class="form-control" rows="5" placeholder="Note" name="edit_event_note" id="edit_event_note"></textarea>
+	    
+	    <button type="button" class="btn btn-info" id="confirm_edit_btn">Submit</button>
+	</div>
+
+    
+    <!-- dialog to share event -->
+	<div id="share_dialog" title="Share calendar">
+
+		<select id="select_user"></select>
+		<button type="button" class="btn btn-info" id="share_user_btn_2">Share</button>
+	</div>
+    
+
+    <!-- initial setup -->
+	<script src="http://classes.engineering.wustl.edu/cse330/content/calendar.min.js"></script>
+        <script type="text/javascript" src="calendar.js"></script>
+	    <script type="text/javascript">
+		   $(document).ready(function(){
+	           check_login();
+	           updateCalendar();
+
+	           //add listener to share button
+	           document.getElementById("share_user_btn_2").addEventListener("click", function(event){
+		    	var dataString = "option=share_calendar&share_to=" + $("#select_user").val();
+		    	console.log(dataString);
+		    	var xmlHttp = new XMLHttpRequest();
+		    	xmlHttp.open("POST", "event.php",true);
+		    	xmlHttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+		    	xmlHttp.addEventListener("load", function(event){
+		    		var jsonData = JSON.parse(event.target.responseText);
+		    		if(jsonData.success){
+		    			console.log("shared");
+		    			alert("Share successfully");
+		    			$("#share_dialog").dialog("close");
+		    		}else{
+		    			alert("Fail to share");
+		    		}
+		    	},false);
+		    	xmlHttp.send(dataString);
+		    },false);
+	           
+	       });
+	    </script>
+</body>
+</html>
+
+

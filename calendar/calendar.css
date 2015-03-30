@@ -1,0 +1,34 @@
+
+body{
+	background-color: rgba(192,192,192,0.5);
+}
+
+
+.month_days{
+	background-color: #C2F2D9
+}
+
+.current_day{
+	background-color: #F2C2D8
+}
+
+th{
+    background-color: #FFFF66;
+ }
+
+td:hover {
+    background-color: #5cb85c;
+ }
+
+#mydialog { display:none }
+	    
+#login_dialog {display: none}
+
+#signup_dialog {display: none}
+
+#event_dialog {display: none}
+
+
+#edit_dialog {display: none}
+
+#share_dialog {display: none}
