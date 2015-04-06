@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>ChatRoom</title>
+    <meta charset="UTF-8">
+
+     <!-- Link to Boostrap and jQuery -->
+
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/themes/start/jquery-ui.css"
+   type="text/css" rel="Stylesheet" /> 
+   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/2.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/2.3.2/css/bootstrap-theme.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/2.3.2/js/bootstrap.min.js"></script>
+    
+    <!-- CSS -->
+    <style>
+        body {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        .well {
+            margin: 0px;
+            background-color: #CEF6F5;
+        }
+    </style>
+
+
+
+    <script src="/socket.io/socket.io.js" ></script>
+    <script type="text/javascript">
+        //global variables for client
+        var my_identity = ["Someone", "id"];
+        var my_username = "Someone";
+        var current_room = "MainRoom";
+        var attemp_to_join_room = "";
+        var admin_current_room = false;
+        var password_input = "";
+        var socketio = io.connect();
+        
+
+        //template for room
+        var join_template = '<div class="row-fluid"><div class="span12 well"><div id="room_messages" style="min-height:220px; max-height:220px; overflow:auto;"><span class="label label-info">Robot</span>&nbsp;&nbsp;<div id="robot_message">Welcome, I am a robot :)</div><br/></div></div></div><div class="row-fluid"><div class="span12"><h3>Current Users</h3></div></div><div class="row-fluid"><div id="room_users" class="span12"><span class="badge badge-success">Robot</span></div></div></div>';
+ 
+        //when connection done, confirm username and socket id       
+        socketio.on("connection_done", function(data){
+            $("#modal_setnick").modal("show");
+            my_identity[0] = my_username;
+            my_identity[1] = data["user_id"];
+            update_category();
+        });
+
+
+        //display message in the room
+        socketio.on("message_to_client",function(data) {
+            var room_message_selector = "#" + data['message_room'] + " #room_messages";
+            if(data["message_username"] === "Notification"){
+                $(room_message_selector).append("<span class='label label-warning'>" + data["message_username"] + "</span>&nbsp;&nbsp;" + data['message'] + "<br/>");
+            }else{
+                $(room_message_selector).append("<span class='label label-info'>" + data["message_username"] + "</span>&nbsp;&nbsp;" + data['message'] + "<br/>");
+            }       
+        });
+
+        
+        //update current users in the room
+        socketio.on('update_users_in_room', function(data){
+            var users_in_room = data['users_in_room'];
+            var in_room = data['in_room'];
+            var users_info = "";
+            var users_list = "";
+
+            //build user list string
+            for(var idx in users_in_room){
+                users_info += "<span class='badge badge-success'>" + users_in_room[idx] + "</span>";
+                if(users_in_room[idx] != my_username){
+                    users_list += "<option value='" + users_in_room[idx] + "'>" + users_in_room[idx] + "</option>";
+                }
+            }
+
+            //display user list
+            $("#" + in_room + " #room_users").html(users_info);
+            $("#current_users_list").html(users_list);
+            $("#current_users_list_2").html(users_list);
+            $("#private_users_list").html(users_list);
+        });
+
+
+        //check if client is admin
+        socketio.on('check_is_admin', function(data){
+          
+            findUsersInRoom();
+            var is_admin = data['is_admin'];
+            var which_room = data['which_room'];
+            
+
+            //display additional features for admin
+            if(is_admin && which_room.indexOf(current_room)!=-1){
+                var admin_dropdown = "<li><a href='#modal_join_public_room' data-toggle='modal'><i class='icon-plus'></i>&nbsp;Join a public room</a></li>" + "<li><a href='#modal_join_private_room' data-toggle='modal'><i class='icon-plus'></i>&nbsp;Join a private room</a></li>" +
+                    "<li class='divider'></li><li><a href='#modal_createroom' data-toggle='modal'><i class='icon-plus'></i>&nbsp;Create a room</a></li>"
+                    + "<li><a id='b_leave_room' href='#' onclick='leaveRoom()'><i class='icon-minus'></i>&nbsp;Leave current room</a></li>" + 
+                    "<li class='divider'></li><li><a href='#modal_admin' data-toggle='modal'><i class='icon-cog'></i>&nbsp;Admin room</a></li>"
+                    + "<li><a href='#modal_transfer_admin' data-toggle='modal'><i class='icon-cog'></i>&nbsp;Transfer admin</a></li>";
+
+                var room_message_selector = "#" + current_room + " #room_messages #robot_message";
+                $(room_message_selector).html(my_username + " is the admin of current room -- admin your room in the operation menu");
+
+                $("#dropdown-menu").html(admin_dropdown);
+                admin_current_room = true;
+                
+            }else{
+                admin_current_room = false;
+                var normal_dropdown = "<li><a href='#modal_join_public_room' data-toggle='modal'><i class='icon-plus'></i>&nbsp;Join a public room</a></li>" + "<li><a href='#modal_join_private_room' data-toggle='modal'><i class='icon-plus'></i>&nbsp;Join a private room</a></li>" +
+                    "<li class='divider'></li><li><a href='#modal_createroom' data-toggle='modal'><i class='icon-plus'></i>&nbsp;Create a room</a></li>"
+                    + "<li><a id='b_leave_room' href='#' onclick='leaveRoom()'><i class='icon-minus'></i>&nbsp;Leave current room</a></li>";
+
+                $("#dropdown-menu").html(normal_dropdown);
+            }
+
+        });
+
+        
+        //client forced to leave
+        socketio.on('force_to_leave', function(data){
+            //remove room tab
+            var leave_room_name = data['leave_room_name'];
+            $("#rooms_tabs #" + leave_room_name + "_tab").remove();
+            $("#rooms #" + leave_room_name).remove();
+
+            //notification
+            var msg = my_username + " has been removed from the room by admin";
+            socketio.emit("message_to_server", {message:msg, message_username: "Notification", message_room: leave_room_name});
+            findUsersInRoom();
+            
+            //switch back to main room
+            current_room = "MainRoom";
+            $("#back_to_main").click();
+            alert("You have been forced to leave from " + leave_room_name + " by admin");
+
+        });
+       
+
+        //check if client can join
+        socketio.on('join_check', function(data){
+            var is_banned = data['am_i_banned'];
+
+            //client is banned
+            if(is_banned){
+                alert("Sorry, you are banned from this room by admin");
+            }else{
+
+                var room_name = data['in_room'];
+                $("#room_name").val("");
+                
+                //add room tab
+                var tab_id = room_name + '_tab';
+                $("#rooms_tabs").append("<li id='" + tab_id + "'><a href='#" + room_name + "' data-toggle='tab' onclick=changeRoom('" + room_name + "')>" + room_name + "</a></li>");
+                $("#rooms").append('<div class="tab-pane" id="' + room_name + '">' + join_template);
+                $('#modal_join_public_room').modal('hide');
+                
+                socketio.emit("join_public_room", {join_room_name: room_name, join_username: my_username});
+                socketio.emit("am_i_admin", {my_name: my_username});
+
+                //notification
+                var msg = my_username + " has joined the room";
+                 socketio.emit("message_to_server", {message:msg, message_username: "Notification", message_room: room_name});
+
+                 findUsersInRoom();
+            }
+
+        });
+
+
+        //update rooms by category in the navigation bar
+        socketio.on('show_category', function(data){
+            var category_room_list = data['category_room_list'];
+
+            for(var key in category_room_list){
+                console.log("outer loop");
+                var rooms = category_room_list[key];
+                var str = "";
+                for(var r in rooms){
+                    console.log("inner loop");
+                    str += "<li role='presentation'><a role='menuitem' tabindex='-1' onclick=click_to_join('" + rooms[r] + "')>" + rooms[r] + "</a></li>";
+                }
+                $("#category #"+key+"-menu").html(str);
+            }
+
+        });
+
+
+        //create a room the first time
+        socketio.on('join', function(data){
+            var room_name = data['room_to_join'];
+            var tab_id = room_name + '_tab';
+            $("#rooms_tabs").append("<li id='" + tab_id + "'><a href='#" + room_name + "' data-toggle='tab' onclick=changeRoom('" + room_name + "')>" + room_name + "</a></li>");
+            $("#rooms").append('<div class="tab-pane" id="' + room_name + '">' + join_template);
+            $('#modal_createroom').modal('hide');
+        });
+
+        
+        //check if client can join a private room
+        socketio.on('join_private_check', function(data){
+            var join_result = data['join_result'];
+
+            //cannot join private room
+            if(!join_result){
+                alert("Fail to enter the private room");
+            }else{
+                var room_name = data['join_room_name'];
+                var tab_id = room_name + '_tab';
+                $("#rooms_tabs").append("<li id='" + tab_id + "'><a href='#" + room_name + "' data-toggle='tab' onclick=changeRoom('" + room_name + "')>" + room_name + "</a></li>");
+                $("#rooms").append('<div class="tab-pane" id="' + room_name + '">' + join_template);
+                $('#modal_join_private_room').modal('hide');
+
+                socketio.emit("am_i_admin", {my_name: my_username});
+
+                //notification
+                var msg = my_username + " has joined the room";
+                socketio.emit("message_to_server", {message:msg, message_username: "Notification", message_room: room_name});
+
+                findUsersInRoom();
+
+            }
+
+        });
+
+
+        //display private message
+        socketio.on('show_private_message', function(data){
+            var room_message_selector = "#" + data['private_room_name'] + " #room_messages";
+            $(room_message_selector).append("<span class='label label-info'>" + data["private_msg_sender"] + " (Private Message): </span>&nbsp;&nbsp;" + data['private_content'] + "<br/>");
+
+        });
+
+
+
+        //set up private room
+        socketio.on('setup_private_room', function(data){
+            $("#modal_create_room_password").modal("show");
+            
+        });
+
+        
+        //display room list by public or private
+        socketio.on('show_room_list', function(data){
+            var room_type = data['room_type'];
+            var room_list = data['room_list'];
+            
+            var str = "";
+            for(var i=0; i<room_list.length; i++){
+                str += "<option value='" + room_list[i] + "'>" + room_list[i] + "</option>";
+            }
+            if(room_type === "public"){
+                $("#public_room_name").html(str);
+                $("#modal_join_public_room").modal("show");
+
+            }else{
+                $("#private_room_name").html(str);
+                $("#modal_join_private_room").modal("show");
+            }
+
+        });
+
+        //update room list
+        socketio.on('update_room_list', function(data){
+            var room_type = data['room_type'];
+            var room_list = data['room_list'];
+            
+            var str = "";
+            for(var i=0; i<room_list.length; i++){
+                str += "<option value='" + room_list[i] + "'>" + room_list[i] + "</option>";
+            }
+            if(room_type === "public"){
+                $("#public_room_name").html(str);
+            }else{
+                $("#private_room_name").html(str);
+            }
+
+        });
+        
+
+        //send message to server
+        function sendMessage(){
+           var msg = $("#message_text").val();
+           $("#message_text").val("");
+           socketio.emit("message_to_server", {message:msg, message_username: my_username, message_room: current_room});
+           
+        }
+        
+
+        //set username
+        function setUsername(){
+           var new_username = $("#username").val();
+           $("#username").val("");
+           socketio.emit("set_username", {username: new_username});
+           $("#" + current_room + " #room_users").append("<span class='badge badge-success'>" + new_username + "</span>");
+           my_username = new_username;
+           $('#modal_setnick').modal('hide');
+        }
+        
+
+        //join a public room
+        function join_publicRoom(){
+            var room_name = $("#public_room_name").val();
+            $("#public_room_name").val("");
+            socketio.emit("isInBlackList", {check_room:room_name, check_username:my_username});
+
+        }
+        
+
+        //click on rooms in the navigation bar to join
+        function click_to_join(room_name){
+            socketio.emit("isInBlackList", {check_room:room_name, check_username:my_username});
+        }
+
+
+        //join a private room
+        function join_privateRoom(){
+            var room_name = $("#private_room_name").val();
+            $("#private_room_name").val("");
+            var room_password = $("#private_room_password").val();
+            $("#private_room_password").val("");
+
+            socketio.emit("private_room_join", {private_room_name:room_name, private_room_password: room_password, room_username: my_username});
+
+        }
+        
+
+        //click on tab to change to another room
+        function changeRoom(new_room){
+            current_room = new_room;
+            findUsersInRoom();
+            socketio.emit("am_i_admin", {my_name: my_username});
+            console.log("Change room to " + new_room);
+        }
+        
+
+        //leave current room
+        function leaveRoom(){
+            $("#rooms_tabs #" + current_room + "_tab").remove();
+            $("#rooms #" + current_room).remove();
+
+            socketio.emit("leave_room", {leave_room_name: current_room, leave_username: my_username});
+
+            //notification
+            var msg = my_username + " has left the room";
+            socketio.emit("message_to_server", {message:msg, message_username: "Notification", message_room: current_room});
+
+            current_room = "MainRoom";
+            $("#back_to_main").click();
+            findUsersInRoom();
+
+            
+        }
+
+        //find users in a room
+        function findUsersInRoom(){
+            socketio.emit("find_users_in_room", {update_room_name: current_room});
+        }
+        
+
+        //kick user from a room
+        function kick_user(){
+            var target = $("#current_users_list").val();
+
+            socketio.emit("admin_kick_user", {kick_in_room: current_room, kick_username: target});
+        }
+        
+
+        //ban user from a room
+        function ban_user(){
+            var target = $("#current_users_list").val();
+            socketio.emit("admin_ban_user", {ban_in_room: current_room, ban_username: target});
+        }
+
+    
+        //show private message user list
+        function showPrivateList(){
+            $("#modal_private").modal("show");
+        }
+   
+        //send private message   
+        function sendPrivateMessage(){
+            var private_input = $("#message_text").val();
+            var private_target = $("#private_users_list").val();
+
+            var room_message_selector = "#" + current_room + " #room_messages";
+            $(room_message_selector).append("<span class='label label-info'>" + my_username + " (Private Message): </span>&nbsp;&nbsp;" + private_input + " <span class='label label-warning'>*sent to " + private_target + "</span><br/>");
+
+            socketio.emit("send_private_message", {private_in_room: current_room, private_username: private_target, private_message: private_input, private_sender: my_username});
+            $("#modal_private").modal("hide");
+        }
+
+        //create a room
+        function createRoom(){
+            var create_room_name = $("#create_room_name").val();
+            $("#create_room_name").val("");
+
+            var create_room_password = $("#create_room_password").val();
+            $("#create_room_password").val("");
+
+            var create_room_category = $("#category_list").val();
+
+            socketio.emit("create_new_room", {create_new_room_name: create_room_name, create_new_room_password:create_room_password, room_admin: my_username, create_new_room_category: create_room_category});
+            update_category();
+            update_public_rooms();
+            update_private_rooms();
+        }
+
+        
+        //find or update public/private rooms
+        function find_public_rooms(){
+            socketio.emit("find_rooms", {public_or_private: "public"});
+        }
+
+        function find_private_rooms(){
+            socketio.emit("find_rooms", {public_or_private: "private"});
+        }
+
+        function update_public_rooms(){
+             socketio.emit("update_rooms", {public_or_private: "public"});
+
+        }
+
+        function update_private_rooms(){
+            socketio.emit("update_rooms", {public_or_private: "private"});
+
+        }
+
+        //transfer admin to another user
+        function transfer_admin(){
+            var transfer_admin_to = $("#current_users_list_2").val();
+            socketio.emit("transfer_admin", {new_admin: transfer_admin_to, admin_room: current_room});
+
+            //notification
+            var msg = my_username + " transfers admin to " + transfer_admin_to;
+            socketio.emit("message_to_server", {message:msg, message_username: "Notification", message_room: current_room});
+
+        }
+        
+
+        //update rooms in the category
+        function update_category(){
+            socketio.emit("update_category");
+        }
+    </script>
+
+      
+</head>
+
+    <body style="margin-bottom: 0px; padding-bottom: 0px;">
+        <div class="row-fluid">
+
+
+           <!-- navigation bar -->
+            <div class="row-fluid">
+                <div class="span12">
+                    <div class="navbar navbar-default navbar-fixed-top">
+                        <div class="navbar-inner">
+                              <a class="brand" href="#">&nbsp;&nbsp;&nbsp;<i class="icon-envelope icon-black"></i>&nbsp;WeChat&nbsp;</a>
+                              <ul class="nav" id="category">
+                                 <li class="dropdown">
+                                      <a class="dropdown-toggle" data-toggle="dropdown" href="#">Sports<b class="caret"></b></a> 
+                                      <ul class="dropdown-menu" id="sports-menu">
+                                          <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Haha</a></li>
+                                      </ul>
+                                 </li>
+                                 
+                                 <li class="dropdown">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Movies<b class="caret"></b></a>  
+                                    <ul class="dropdown-menu" id="movies-menu"></ul>
+                                 </li>
+
+                                 <li class="dropdown">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Technology<b class="caret"></b></a>  
+                                    <ul class="dropdown-menu" id="technology-menu"></ul>
+                                 </li>
+
+                                 <li class="dropdown">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Society<b class="caret"></b></a>  
+                                    <ul class="dropdown-menu" id="society-menu"></ul>
+                                 </li>
+
+                                 <li class="dropdown">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Travel<b class="caret"></b></a>  
+                                    <ul class="dropdown-menu" id="travel-menu"></ul>
+                                 </li>
+
+                                 <li class="dropdown">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Politics<b class="caret"></b></a>  
+                                    <ul class="dropdown-menu" id="politics-menu"></ul>
+                                 </li>
+
+                                 <li class="dropdown">
+                                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Life<b class="caret"></b></a>  
+                                     <ul class="dropdown-menu" id="life-menu"></ul>
+                                 </li>
+
+                                 <li class="dropdown">
+                                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Others<b class="caret"></b></a>  
+                                     <ul class="dropdown-menu" id="others-menu"></ul>
+                                 </li>
+                              </ul> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row-fluid">
+                <div class="span12 well" style="background-color:white; border:0px"> 
+                    
+                    <!-- room tabs -->
+                    <div class="row-fluid">
+                        <div class="span12">
+                            <ul id="rooms_tabs" class="nav nav-tabs">
+                                <li class="dropdown">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Operation<b class="caret"></b></a>  
+                                    <ul class="dropdown-menu" id="dropdown-menu">
+                                        <li><a onclick="find_public_rooms()"><i class="icon-plus"></i>&nbsp;Join a public room</a></li>
+                                        <li><a onclick="find_private_rooms()"><i class="icon-plus"></i>&nbsp;Join a private room</a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="#modal_createroom" data-toggle="modal"><i class="icon-plus"></i>&nbsp;Create a room</a></li>
+                                        <li><a href="#" onclick='leaveRoom()'><i class="icon-minus"></i>&nbsp;Leave current room</a></li>       
+                                    </ul>
+                                </li>
+
+                                <li id="MainRoom_tab" class="active"><a href="#MainRoom" id="back_to_main" data-toggle="tab" onclick="changeRoom('MainRoom')">HelloWorld</a></li>
+                            
+                            </ul>
+                        </div>
+                    </div>
+                    
+
+                    <!-- room div -->
+                    <div id="rooms" class="tab-content">
+                        <div class="tab-pane active" id="MainRoom">
+                            <div class="row-fluid">
+                                <div class="span12 well">
+                                    <div id="room_messages" style="min-height:220px; max-height:220px; overflow:auto;">
+                                        <span class="label label-info">Robot</span>&nbsp;&nbsp;Welcome, I am a robot<br/>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+
+                            <div class="row-fluid">
+                                <div class="span12">
+                                    <h3>Current Users</h3>
+                                </div>
+                            </div>
+
+                            <div class="row-fluid">
+                                <div id="room_users" class="span12">
+                                    <span class="badge badge-success">Robot</span>
+                                </div>
+                            </div>
+
+                        </div>
+                        
+
+                    </div>
+                </div>
+            </div>
+            
+
+            <!-- message box -->
+            <div class="row-fluid">
+                <div class="span9"> 
+                    <textarea  id="message_text" class="form-control span9" rows="4" placeholder="Type message here"></textarea>
+                    <button class="btn btn-info" onclick="sendMessage()">Send</button>
+                    <button class="btn btn-info" onclick="showPrivateList()">Send Private</button>
+                        
+                </div>
+            </div>
+        </div>
+        
+
+        <!-- modal to join public room -->
+        <div id="modal_join_public_room" class="modal hide fade">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3>Join public room</h3>
+            </div>
+
+            <div class="modal-body">
+                <select id="public_room_name"></select>
+                <p><small>Please select a room and join</small></p>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="join_publicRoom()">Join public room</button>
+            </div>
+        </div>
+       
+
+         <!-- modal to join private room -->
+        <div id="modal_join_private_room" class="modal hide fade">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3>Join private room</h3>
+            </div>
+
+            <div class="modal-body">
+                <select id="private_room_name"></select>
+                <br /><br />
+                <input id="private_room_password" type="password" class="input-xlarge" placeholder="Type room password">
+                <p><small>Please enter the password for selected room</small></p>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="join_privateRoom()">Join private room</button>
+            </div>
+        </div>
+        
+
+
+       <!-- modal to create room -->
+        <div id="modal_createroom" class="modal hide fade">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3>Create a room</h3>
+            </div>
+
+            <div class="modal-body">
+                <input id="create_room_name" type="text" class="input-xlarge" placeholder="Room name">
+                <br /><br />
+                <input id="create_room_password" type="password" class="input-xlarge" placeholder="Type room password or leave it blank">
+                <p><small>Room with password will be protected. Anyone wants to join a private room needs to enter correct password</small></p>
+                <select id="category_list">
+                    <option value="others">Others</option>
+                    <option value="sports">Sports</option>
+                    <option value="movies">Movies</option>
+                    <option value="technology">Technology</option>
+                    <option value="society">Society</option>
+                    <option value="travel">Travel</option>
+                    <option value="politics">Politics</option>
+                    <option value="life">Life</option>
+                </select>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="createRoom()">Create room</button>
+            </div>
+        </div>
+        
+
+
+
+
+        <!-- modal to set username -->
+        <div id="modal_setnick" class="modal hide fade">
+            <div class="modal-body">
+                <input id="username" type="text" class="input-xlarge" placeholder="Type your username here">
+                <p><small>Pick up something interesting</small></p>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="setUsername()">Save Change</button>
+            </div>
+        </div>
+        
+
+
+        <!-- modal to display admin features -->
+        <div id="modal_admin" class="modal hide fade">
+
+            <div class="modal-body">
+                <p><small>Kick out a user or ban permanently</small></p>
+                <select id="current_users_list"></select>
+                
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="kick_btn" onclick="kick_user()">Kick out</button>
+                <button class="btn btn-primary" id="ban_btn" onclick="ban_user()">Ban permanently</button>
+            </div>
+        </div>
+
+        <!-- modal to transfer admin -->
+        <div id="modal_transfer_admin" class="modal hide fade">
+
+            <div class="modal-body">
+                <p><small>Transfer your admin to another person in your room</small></p>
+                <select id="current_users_list_2"></select>
+                
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="transfer_admin()">Transfer</button>
+            </div>
+        </div>
+
+
+
+        <!-- modal to send private message to some user -->
+        <div id="modal_private" class="modal hide fade">
+
+            <div class="modal-body">
+                <p><small>Send a private message to ...</small></p>
+                <select id="private_users_list"></select>
+                
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="sendPrivateMessage()">Send</button>  
+            </div>
+        </div>
+        
+
+
+       <!-- modal to enter password for the room -->
+        <div id="modal_room_password" class="modal hide fade">
+
+            <div class="modal-body">
+                <p><small>This room is protected by a password</small></p>
+                <input id="room_password_input" type="password" class="input-xlarge" placeholder="Type room password">
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="enter_pwd_room()">Enter</button>
+            </div>
+        </div>
+       
+    </body>
+</html>
