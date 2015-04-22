@@ -1,0 +1,660 @@
+<html>
+<head>
+  <title>Online Shopping Website</title>
+
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.19/angular.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
+  <script src="/javascripts/angularApp.js"></script>
+
+
+  <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/themes/start/jquery-ui.css"
+  type="text/css" rel="Stylesheet" /> 
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/2.3.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/2.3.2/css/bootstrap-theme.min.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/2.3.2/js/bootstrap.min.js"></script>
+
+
+  <link href="/stylesheets/main.css" rel="stylesheet">
+  <link href="/stylesheets/slider.css" rel="stylesheet" type="css/text"> 
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet" media="screen">
+  <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+  <script src="http://code.jquery.com/jquery-latest.js"></script>
+  <script src="assets/js/bootstrap.min.js"></script>
+  <script src="assets/js/app.js"></script>
+
+
+</head>
+
+
+
+
+<!--     main page       -->
+
+<body ng-app="onlineShop" ng-controller="MainCtrl">
+
+  <div class="navbar navbar-default" >
+    <div class="navbar-inner">
+     <a class="brand" href="/#/welcome">Shopping</a>
+     <ul class="nav nav-pills">
+      <li role="presentation" class="active"><a href="/#/home">All</a></li>
+      <li role="presentation"><a>Clothing</a></li>
+      <li role="presentation"><a>Food</a></li>
+      <li role="presentation"><a>Electronics</a></li>
+      <li role="presentation"><a>Movies</a></li>
+      <li role="presentation"><a>Music</a></li>
+      <li role="presentation"><a>Jewelry</a></li>
+      <li role="presentation"><a>Outdoors</a></li>
+      <li class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#">More<b class="caret"></b></a>  
+        <ul class="dropdown-menu">
+          <li><a>More shops<a></li>
+          <li><a>Admin: Jing </a></li>
+          <li><a>Admin: Yilong</a></li>
+          <li><a>Contact us</a></li>
+        </ul>
+      </li>
+
+    </ul>
+
+    <ul class="nav nav-pills pull-right" ng-controller="NavCtrl">
+      <li ng-show="isLoggedIn()"><a href="/#/account">{{currentUser()}}'s Account</a></li>
+      <li ng-show="isLoggedIn()"><a href="" ng-click="logOut()">Log Out</a></li>
+      <li ng-hide="isLoggedIn()"><a href="/#/login">Log In</a></li>
+      <li ng-hide="isLoggedIn()"><a href="/#/register">Register</a></li>
+    </ul>
+
+  </div>
+</div>
+
+<ui-view></ui-view>
+
+
+
+<!--    welcome page        -->
+<script type="text/ng-template" id="/welcome.html">
+  <div class="slider">
+
+    <div class="slide active-slide">
+      <div class="container">
+        <div class="row">
+          <div class="slide-copy col-xs-5">
+            <h1>Welcome :)</h1>
+            <p></p>
+            <p>This is online shopping website</p>
+            <p>Website built using MongoDB, Express, AngularJS, Node.js, etc</p>
+            <p>Also, Bootstrap is used to enhance the front-end display</p>
+          </div>
+        </div>
+      </div>      
+    </div>
+</div>
+
+
+<div class="slider">
+  <div class="slide active-slide">
+    <div class="container">
+      <div class="row">
+        <div class="slide-copy col-xs-5">
+          <h1># Shopping News</h1>
+          <h2>There are many deals going on ... </h2>
+          <p></p>
+          <ul>
+            <li ng-repeat="news in shopping_news">{{news}}</li>
+          </ul>
+        </div>
+      </div>
+    </div>      
+  </div>
+
+</div>
+
+<div class="slider-nav">
+  <a href="#" class="arrow-prev"><img src="http://s3.amazonaws.com/codecademy-content/courses/ltp2/img/flipboard/arrow-prev.png" alt="Oops, no image found"></a>
+  <ul class="slider-dots">
+    <li class="dot active-dot">&bull;</li>
+    <li class="dot">&bull;</li>
+    <li class="dot">&bull;</li>
+    <li class="dot">&bull;</li>
+  </ul>
+  <a href="#" class="arrow-next"><img src="http://s3.amazonaws.com/codecademy-content/courses/ltp2/img/flipboard/arrow-next.png" alt="Oops, no image found"></a>
+</div> 
+
+</script>
+
+
+
+
+<!--    home page        -->
+<script type="text/ng-template" id="/home.html">
+
+  <div class="row">
+    <div class="col-xs-6 col-xs-offset-3">
+      <div class="page-header">
+        <h1>Welcome to online shopping website :)</h1>
+<br />
+<h3>Here is a list of shops in this category:</h3>
+<br />
+<h5>Search Shops by Keyword:</h5> 
+<br />
+Type in Keyword: <input ng-model="search.$">
+<br /> <br /> 
+<h5>Search Shops by Category:</h5>
+<select class="form-control" ng-model="search.shop_category">
+  <option value="">All Shops</option>
+  <option value="Books">Books</option>
+  <option value="Clothing">Clothing</option>
+  <option value="Food">Food</option>
+  <option value="Electronics">Electronics</option>
+  <option value="Movies">Movies</option>
+  <option value="Music">Music</option>
+  <option value="Jewelry">Jewelry</option>
+  <option value="Outdoors">Outdoors</option>
+</select>
+</div>
+<div ng-repeat="shop in shops | orderBy: '-star' | filter:search">
+  <span class="glyphicon glyphicon-thumbs-down ptr" ng-click="decrementUpvotes(shop)"></span>
+  <span class="glyphicon glyphicon-thumbs-up ptr" ng-click="incrementUpvotes(shop)"></span>
+  {{shop.star}}
+
+
+  <span class="b">
+    <span>
+      Shop Name: {{shop.shop_name}}
+    </span> 
+
+    <br />
+
+    <span>
+     &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+     Shop Onwer: {{shop.shop_owner}}
+   </span>
+
+   <br />
+
+   <span>
+     &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+     Shop Detail: {{shop.shop_description}}
+   </span>
+
+   <br />
+   <span>
+     &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+     Shop Category: {{shop.shop_category}}
+   </span>  
+
+   <br />
+
+   <span>
+    <button ng-show="isShopOwner(shop)" type="submit" class="btn btn-primary"><a href="#/shops/{{shop._id}}/edit_shop">  Edit Shop </a></button>
+  </span>
+
+</span>
+<span>
+  <button type="btn btn-primary"><a href="#/shops/{{shop._id}}">Items</a></button>
+</span>
+</div>
+
+
+
+
+<form class="a" ng-show="isLoggedIn()"  ng-submit="addShop()">
+  <h3>Create a new shop</h3>
+
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="Shop name" ng-model="shop_name"></input>
+  </div>
+  <div class="form-group">
+   <textarea class="form-control" rows="4" cols="50" placeholder="Shop description" ng-model="shop_description"></textarea>
+ </div>
+
+ <div class="form-group">
+  Shop category:
+  <select class="form-control" ng-model="shop_category">
+    <option value="Books">Books</option>
+    <option value="Clothing">Clothing</option>
+    <option value="Food">Food</option>
+    <option value="Electronics">Electronics</option>
+    <option value="Movies">Movies</option>
+    <option value="Music">Music</option>
+    <option value="Jewelry">Jewelry</option>
+    <option value="Outdoors">Outdoors</option>
+  </select>
+</div>
+
+<button type="submit" class="btn btn-primary">Create Shop</button>
+</form>
+
+</div>
+</div>
+
+</script>
+
+<!--      edit shop      -->
+
+<script type="text/ng-template" id="/edit_shop.html">
+
+  <div class="row">
+    <div class="col-xs-6 col-xs-offset-3">
+      <div class="page-header">
+        <h1>Edit your shop :)</h1>
+<br />
+</div>
+
+<form class="a" ng-submit="editShop()">
+  <h3>Edit your shop here ...</h3>
+
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="{{shop.shop_name}}" ng-model="shop_name"></input>
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="{{shop.shop_description}}" ng-model="shop_description"></input>
+  </div>
+
+  <div class="form-group">
+    Shop category:
+    <select class="form-control" ng-model="shop_category">
+      <option value="Books">Books</option>
+      <option value="Clothing">Clothing</option>
+      <option value="Food">Food</option>
+      <option value="Electronics">Electronics</option>
+      <option value="Movies">Movies</option>
+      <option value="Music">Music</option>
+      <option value="Jewelry">Jewelry</option>
+      <option value="Outdoors">Outdoors</option>
+    </select>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Confirm Edit Shop</button>
+</form>
+
+
+<form class="a" ng-submit="deleteShop()">
+ <button type="submit" class="btn btn-primary">Delete this Shop</button>
+</form>
+</div>
+</div>
+</script>
+
+
+
+<!--    items in shop        -->
+<script type="text/ng-template" id="/shop_items.html">
+  <div class="row">
+    <div class="col-xs-6 col-xs-offset-3">
+      <div class="page-header">
+        <h1>Welcome to the shop :)</h1>
+<br />
+<h3>Here is a list of items in this shop:</h3>
+<br />
+
+<h5>Search Items by Keyword:</h5>
+<br />
+Type in Keyword: <input ng-model="search.$">
+<br /> <br /> 
+<h5>Sort Items by:</h5>
+<select ng-model="orderProp">
+  <option value="">Default</option>
+  <option value="item_price">Price</option>
+  <option value="item_quantity">Quantity</option>
+  <option value="-upvotes">Upvotes</option>
+</select>
+</div>
+
+<div ng-repeat="item in shop.shop_items | orderBy:orderProp | filter:search">
+  <span class="glyphicon glyphicon-thumbs-down ptr" ng-click="decrementItemUpvotes(item)"></span>
+  <span class="glyphicon glyphicon-thumbs-up ptr" ng-click="incrementItemUpvotes(item)"></span>
+  {{item.upvotes}}
+  <span class="b">
+   <span>Item Name: {{item.item_name}}</span>
+   <br/><br/>
+   <span>
+     &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+     Item Price: {{item.item_price}}
+   </span>
+   <br /><br />
+   <span>
+    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+    Item Detail: {{item.item_description}}
+  </span>
+
+  <span>
+    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+    <form ng-submit="add_item_cart(item)">
+     <button ng-show="isLoggedIn()" class="btn btn-primary" type="submit">Add to cart</button>
+   </form>
+   <form ng-submit="add_wish_list(item)">
+     <button ng-show="isLoggedIn()" class="btn btn-primary" type="submit">Add to wishlist</button>
+   </form>
+ </span>
+
+</span>
+</div>
+
+
+
+<form class="a" ng-show="isOwner" ng-submit="addItem()">
+  <h3>Add a new item</h3>
+
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="Item name" ng-model="item_name"></input>
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="Item description" ng-model="item_description"></input>
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="Item quantity" ng-model="item_quantity"></input>
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="Item price" ng-model="item_price"></input>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Create Item</button>
+</form>
+
+
+
+<form class="a" ng-show="isOwner" ng-submit="editItem()">
+  <h3>Edit item</h3>
+
+  <div class="form-group">
+    <input class="form-control" type="hidden" ng-model="item_in_shopid" value="{{shop._id}}">
+  </div>
+
+  <div class="form-group">
+    <select class="form-control"  ng-model="edit_item_id">
+     <option ng-repeat="item in shop.shop_items" value="{{item._id}}">{{item.item_name}}</option>
+   </select>
+ </div>
+
+
+
+ <div class="form-group">
+  <input type="text" class="form-control" placeholder="Edit description" ng-model="edit_item_description"></input>
+</div>
+<div class="form-group">
+  <input type="text" class="form-control" placeholder="Edit quantity" ng-model="edit_item_quantity"></input>
+</div>
+<div class="form-group">
+  <input type="text" class="form-control" placeholder="Edit price" ng-model="edit_item_price"></input>
+</div>
+
+<button type="submit" class="btn btn-primary">Confirm edit</button>
+</form>
+
+
+
+
+<form class="a" ng-show="isOwner" ng-submit="deleteItem()">
+  <h3>Delete item</h3>
+
+  <div class="form-group">
+    <input class="form-control" type="hidden" ng-model="item_in_shopid" value="{{shop._id}}">
+  </div>
+
+  <div class="form-group">
+    <select class="form-control"  ng-model="delete_item_id">
+     <option ng-repeat="item in shop.shop_items" value="{{item._id}}">{{item.item_name}}</option>
+   </select>
+ </div>
+
+
+ <button type="submit" class="btn btn-primary">Confirm delete</button>
+</form>
+
+
+
+<h3> Comment List </h3>
+<br />
+<div ng-repeat="comment in shop.shop_comments | orderBy: '-upvotes'">
+  <span class="glyphicon glyphicon-thumbs-down ptr" ng-click="decrementCommentUpvotes(comment)"></span>
+  <span class="glyphicon glyphicon-thumbs-up ptr" ng-click="incrementCommentUpvotes(comment)"></span>
+  {{comment.upvotes}} 
+  <span class="b">
+    {{comment.body}}
+  </span>
+</div>
+
+
+<form class="a" ng-submit="addComment()">
+  <h3>Add a new comment</h3>
+
+  <div class="form-group">
+   <input type="text" class="form-control" placeholder="Comment" ng-model="body"></input>
+ </div>
+ <button type="submit" class="btn btn-primary">Post</button>
+</form>
+
+</div>
+</div>
+</script>
+
+
+<!--     user register       -->
+<script type="text/ng-template" id="/register.html">
+ <div class="row">
+  <div class="col-xs-6 col-xs-offset-3">
+    <div class="page-header">
+      <h1>Register</h1>
+    </div>
+
+    <div ng-show="error" class="alert alert-danger row">
+     <span>{{ error.message }}</span>
+   </div>
+
+   <form ng-submit="register()" style="margin-top:30px;">
+     <h3>Register</h3>
+
+     <div class="form-group">
+      <input type="text" class="form-control" placeholder="Username" ng-model="user.username"></input>
+    </div>
+    <div class="form-group">
+      <input type="password" class="form-control" placeholder="Password" ng-model="user.password"></input>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register</button>
+  </form>
+</div>
+</div>
+</script>
+
+
+
+<!--     user login       -->
+
+<script type="text/ng-template" id="/login.html">
+  <div class="row">
+    <div class="col-xs-6 col-xs-offset-3">
+      <div class="page-header">
+        <h1>Login</h1>
+      </div>
+
+      <div ng-show="error" class="alert alert-danger row">
+       <span>{{ error.message }}</span>
+     </div>
+
+     <form ng-submit="logIn()" style="margin-top:30px;">
+       <h3>Log In</h3>
+
+       <div class="form-group">
+        <input type="text" class="form-control" placeholder="Username" ng-model="user.username"></input>
+      </div>
+      <div class="form-group">
+        <input type="password" class="form-control" placeholder="Password" ng-model="user.password"></input>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Log In</button>
+    </form>
+  </div>
+</div>
+</script>
+
+
+
+
+<!--     account page       -->
+<script type="text/ng-template" id="/account.html">
+  <div class="row">
+    <div class="col-xs-6 col-xs-offset-3">
+      <div class="row" ng:controller="AccountCtrl">
+        <div class="span9">
+           <h2>Go to checkout</h2>
+           <button class="btn btn-primary"><a href="/#/cart">Shopping Cart</a></button>
+           <br /><br />
+           <hr style="color:black">
+
+          <h2>Wish list: </h2>
+          <ul id="wish_list_contents">
+           <li ng-repeat="item in wish_list">
+            <h5>Item Name: </h5>{{item.item_name}}
+            <br/>
+            <h5>Item Description:</h5> {{item.item_description}}
+          </li>
+        </ul>
+
+        <br /><br />
+        <hr style="color:black">
+        <h2>Transaction History</h2>
+        <ul id="transaction_contents">
+         <li ng-repeat="t in transaction_history">
+          <h5>Item Name:</h5> {{t.item_name}}
+        </li>
+      </ul>
+      <br /><br />
+      <hr style="color:black">
+
+    </div>
+
+
+    <br /><br /><br /><br />
+    
+    <br /><br />
+    <h2>Get your news posted on Main Page :)</h2>
+    <form ng-submit="addNews()">
+       <div class="form-group">
+           <textarea class="form-control" rows="4" cols="50" placeholder="Post your news here" ng-model="shop_news"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Post News</button>
+    </form>
+    <hr style="color:black">
+
+
+
+    <h2># Make your shopping plan & badget #</h2>
+    <div ng-controller="CartForm">
+      <table class="table">
+        <tr>
+            <th>Description</th>
+            <th></th>
+            <th>Quantity</th>
+            <th></th>
+            <th>Cost</th>
+            <th>Total</th>
+            <th></th>
+        </tr>
+        <tr ng-repeat="item in invoice.items">
+            <td><input style="height:30px;" type="text" ng-model="item.name"class="input-small"></td>           
+            <td><button type="button" class="btn" ng-click="increase(item);"/>+</button></td>
+            <td><input style="height:30px;" type="number" ng:-model="item.qty" class="input-mini"/></td>
+            <td><button type="button" class="btn" ng-click="decrease(item)"/>-</button>
+            <td><input style="height:30px;" type="number" ng-model="item.cost" class="input-mini"></td>
+            <td>{{item.qty * item.cost | currency}}</td>
+            <td>[<a href ng-click="removeItem($index)">X</a>]</td>
+        </tr>
+        <tr>
+            <td><a href ng-click="addItem()" class="btn btn-small">add item</a></td>
+            <td></td>
+            <td>Total:</td>
+            <td>{{total() | currency}}</td>
+        </tr>
+    </table>
+  </div>
+
+
+  </div>
+</div>
+</div>
+</script>
+
+
+
+
+<!--   shopping cart         -->
+
+
+<script type="text/ng-template" id="/cart.html">
+  <div class="row">
+    <div class="col-xs-6 col-xs-offset-3">
+      <h2>Shopping Cart</h2>
+      <div ng:controller="CartCtrl">
+
+        <h3>Your current balance: {{balance}}</h3>
+        <form ng-submit="addBal()">
+          <div class="form-group">
+            <input style="height:30px;" type="number" class="form-control input-lg" ng-model="value_add" placeholder="Please enter value to add in your account"></input>
+          </div>
+          <button type="submit" class="btn btn-primary">Add money</button>
+        </form>
+        <table class="table">
+          <tr>
+           <th>Description</th>
+           <th>Qty</th>
+           <th>Cost</th>
+           <th>Total</th>
+           <th></th>
+         </tr>
+         <tr ng:repeat="item in invoice.items">
+           <td>{{item.description}}</td>           
+           <td><input style="height:30px;" type="number" ng:model="item.qty" ng:required class="input-large" placeholder="Type in item quantity"></td>
+           <td>{{item.cost}}</td>
+           <td>{{item.qty * item.cost | currency}}</td>
+           <td>
+            [<a href ng:click="removeItem($index)">X</a>]
+          </td>
+        </tr>
+
+        <tr>
+         <td></td>
+         <td></td>
+         <td>Total:</td>
+         <td>{{total() | currency}}</td>
+       </tr>
+     </table>
+
+     <form ng-submit="checkout()"><button type="submit" class="btn btn-primary">Checkout</button></form>
+   </div>
+ </div>
+</div>
+</script>
+
+
+<!--     add balance       -->
+
+<script type="text/ng-template" id="/add_balance.html">
+  <div class="row">
+    <div class="col-xs-6 col-xs-offset-3">
+      <h2>Add money to my account</h2>
+      <form class="a" ng-submit="addBalance()">
+       <div class="form-group">
+        <input type="number" class="form-control input-small" placeholder="enter value here" ng-model="user.balance"></input>
+      </div>
+
+      <button class="btn btn-primary" type="submit">Confirm</button>
+      <button class="btn btn-primary" type="reset">Reset</button>
+    </form>
+  </div>
+</div>
+</script>
+
+
+<script type="text/ng-template" id="/my_shops.html">
+
+</script>
+
+
+
+
+</body>
+</html>

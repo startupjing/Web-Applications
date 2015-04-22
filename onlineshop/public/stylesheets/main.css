@@ -1,0 +1,16 @@
+/* main.css */
+
+/* Make the cursor change to a pointer when
+   hovering over the thumbs up upvote button */
+.ptr {
+    cursor: pointer;
+}
+
+.a {
+    margin-top: 30px;
+}
+
+.b {
+    font-size: 20px;
+    margin-left: 10px;
+}
