@@ -13,7 +13,9 @@
 + Online Shopping Platform
   - Basic platform for online shopping
   - Skills: MEAN.io(MongoDB, Express, AngularJS, Node.js)
-
+  
++ Android Phone Catalog
+  - extension of AngularJS tutorial
 
 + File Sharing Site
   - user registration and login
