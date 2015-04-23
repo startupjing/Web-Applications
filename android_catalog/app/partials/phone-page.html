@@ -1,0 +1,128 @@
+<style>
+
+
+nav{
+    left:50%;
+}
+
+
+</style>
+
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-2">
+      <!--Sidebar content-->
+
+      Search: <input ng-model="search.$" />
+      <br />
+      Search by Name: <input ng-model="search.name" />
+      <br />
+      Search by Weight: <input ng-model="search.weight" />
+      <br />
+      Search by RAM: <input ng-model="search.ram" />
+      <br />
+      Search by Internal Storage: <input ng-model="search.internalStorage" />
+
+
+      <br /><br />
+
+      Sort by:
+      <select ng-model="orderProp">
+        <option value="name">Alphabetical</option>
+        <option value="age">Newest</option>
+	      <option value="screenSize">Screen Size</option>
+	      <option value="weight">Weight</option>
+	      <option value="ram">RAM</option>
+	      <option value="internalStorage">Internal Storage</option>
+      </select>
+
+
+      <script type="text/javascript">
+        function update(){
+           var phone1select = document.getElementById("phone1");
+           var phone1 = phone1select.options[phone1select.selectedIndex].value;
+           var phone2select = document.getElementById("phone2");
+           var phone2 = phone2select.options[phone2select.selectedIndex].value;
+           var phone3select = document.getElementById("phone3");
+           var phone3 = phone3select.options[phone3select.selectedIndex].value;
+           var compare_url = "#/phones/compare/" + phone1 + "/" + phone2;
+
+           if(phone3.length > 0){
+              compare_url += "/" + phone3;
+           }
+           console.log("use compare.js");
+           document.getElementById("compare").setAttribute("href",compare_url);
+        }
+
+
+      </script>
+
+      <br />
+      Phone1:
+      <select id = "phone1" onchange="update()">
+         <option value=""></option>
+         <option ng-repeat="phone in phones" value="{{phone.id}}"> {{phone.name}} </option>
+      </select>
+      Phone2: 
+       <select id = "phone2" onchange="update()">
+         <option value=""></option>
+         <option ng-repeat="phone in phones" value="{{phone.id}}"> {{phone.name}} </option>
+       </select>
+       Phone3: 
+       <select id = "phone3" onchange="update()">
+         <option value=""></option>
+         <option ng-repeat="phone in phones" value="{{phone.id}}"> {{phone.name}} </option>
+       </select>
+
+      <a href="#" id="compare">Compare</a>
+
+      <br /><br />
+      <a href="#/phones">Back to List View</a>
+
+
+
+
+    
+
+      
+
+    </div>
+    <div class="col-md-10">
+      <!--Body content-->
+      <ul class="phones">
+        <li id="list_of_phones" ng-repeat="phone in phones | filter:search | offset: currentPage*itemsPerPage | limitTo: itemsPerPage | orderBy:orderProp"
+            class="thumbnail phone-listing">
+
+          <a href="#/phones/{{phone.id}}" class="thumb"><img ng-src="{{phone.imageUrl}}"></a>
+          <a href="#/phones/{{phone.id}}">{{phone.name}}</a>
+          <p>{{phone.snippet}}</p>
+      	  <p>Screen size: {{phone.screenSize}} inches &nbsp&nbsp Weight: {{phone.weight}} grams &nbsp&nbsp RAM: {{phone.ramdisp | isAvailable}} MB &nbsp&nbsp Internal storage: {{phone.internaldisp | isAvailable}} MB  </p>
+        </li>
+      </ul>
+    </div>
+
+
+
+    <center>
+      <nav>
+      <ul class="pagination">
+        <li ng-class="prevPageDisabled()">
+          <a href ng-click="prevPage()">« Prev</a>
+        </li>
+
+        <li ng-repeat="n in range()" ng-class="{active: n == currentPage}" ng-click="setPage(n)">
+          <a href="#/phones-paging">{{n+1}}</a>
+        </li>
+
+        <li ng-class="nextPageDisabled()">
+          <a href ng-click="nextPage()">Next »</a>
+        </li>
+      </ul>
+    </nav>
+  </center>
+
+   
+
+  </div>
+</div>
